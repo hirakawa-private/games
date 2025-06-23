@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>石なでゲーム</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; background: #f0f0f0; padding: 50px; }
+        #stone { width: 150px; margin: 30px auto; transition: transform 0.1s; }
+        #count { font-size: 2em; }
+        img { width: 100%; height: auto; border-radius: 50%; }
+    </style>
+</head>
+<body>
+    <h1>石をなでてください</h1>
+    <div id="stone"><img src="stone.png" alt="石の画像"></div>
+    <p>なでた回数: <span id="count">0</span></p>
+
+    <script>
+        let count = 0;
+        const stone = document.getElementById("stone");
+        const counter = document.getElementById("count");
+        stone.addEventListener("click", () => {
+            count++;
+            counter.textContent = count;
+            stone.style.transform = "scale(1.1)";
+            setTimeout(() => stone.style.transform = "scale(1)", 100);
+        });
+    </script>
+</body>
+</html>
