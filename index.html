@@ -1,51 +1,75 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>石なでゲーム - やり込み版</title>
-    <style>
-        body { text-align: center; font-family: sans-serif; background: #f0f0f0; padding: 50px; }
-        #stone { width: 150px; margin: 30px auto; transition: transform 0.2s; }
-        #count, #level, #high { font-size: 1.5em; margin: 10px; }
-        img { width: 100%; height: auto; border-radius: 50%; }
-    </style>
+<meta charset="UTF-8">
+<title>石なでゲーム</title>
+<style>
+body { font-family: sans-serif; background: #eef; margin: 0; padding: 0; }
+.scoreboard, .badge {
+    position: fixed; background: rgba(255,255,255,0.8); padding: 10px; border-radius: 10px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2); font-size: 0.9em;
+}
+.scoreboard { top: 10px; right: 10px; text-align: right; }
+.badge { top: 10px; left: 10px; }
+#stone { width: 160px; margin: 100px auto 20px; transition: transform 0.1s; }
+#stone img { width: 100%; border-radius: 50%; }
+.message { text-align: center; background: #fff; margin: 10px auto; padding: 10px 20px;
+    border-radius: 20px; width: fit-content; box-shadow: 0 0 5px rgba(0,0,0,0.1); }
+</style>
 </head>
 <body>
-    <h1>石をなでてください</h1>
-    <div id="stone"><img src="stone.png" alt="石の画像"></div>
-    <p>なでた回数: <span id="count">0</span></p>
-    <p>現在レベル: <span id="level">1</span></p>
-    <p>最高記録: <span id="high">0</span></p>
+<div class="scoreboard">撫で数: <span id="count">0</span><br>Lv: <span id="level">1</span><br>称号: <span id="title">-</span></div>
+<div class="badge" id="badge">🎯 今日の目標：10撫で</div>
+<div id="stone"><img src="stone.png" alt="石の画像"></div>
+<div class="message" id="message">石をなでてください</div>
+<audio id="sound" src="https://www.soundjay.com/button/beep-07.wav" preload="auto"></audio>
+<script>
+let count = 0;
+let title = "-";
+const countEl = document.getElementById("count");
+const levelEl = document.getElementById("level");
+const titleEl = document.getElementById("title");
+const badge = document.getElementById("badge");
+const msg = document.getElementById("message");
+const sound = document.getElementById("sound");
+const stone = document.getElementById("stone");
 
-    <script>
-        let count = 0;
-        const stone = document.getElementById("stone");
-        const counter = document.getElementById("count");
-        const levelDisplay = document.getElementById("level");
-        const highDisplay = document.getElementById("high");
+const today = new Date().toDateString();
+if (localStorage.getItem("goal_" + today) === "true") {
+    badge.textContent = "✅ 今日の目標達成！";
+}
 
-        let highScore = localStorage.getItem("highScore") || 0;
-        highDisplay.textContent = highScore;
+function update() {
+    countEl.textContent = count;
+    let lv = Math.floor(count / 10) + 1;
+    levelEl.textContent = lv;
 
-        function updateLevel(cnt) {
-            let level = Math.floor(cnt / 10) + 1;
-            levelDisplay.textContent = level;
-            let newSize = 150 + (level - 1) * 10;
-            stone.style.width = newSize + "px";
-        }
+    if (count >= 100) title = "なで名人";
+    else if (count >= 50) title = "なで上手";
+    else if (count >= 10) title = "なで初心者";
+    else title = "-";
+    titleEl.textContent = title;
 
-        stone.addEventListener("click", () => {
-            count++;
-            counter.textContent = count;
-            updateLevel(count);
-            if (count > highScore) {
-                highScore = count;
-                localStorage.setItem("highScore", highScore);
-                highDisplay.textContent = highScore;
-            }
-            stone.style.transform = "scale(1.1)";
-            setTimeout(() => stone.style.transform = "scale(1)", 100);
-        });
-    </script>
+    if (count >= 10 && !localStorage.getItem("goal_" + today)) {
+        localStorage.setItem("goal_" + today, "true");
+        badge.textContent = "✅ 今日の目標達成！";
+    }
+
+    const msgs = ["もっとなでて〜", "やさしくしてね", "その調子！", "いい感じ〜", "ありがとう！"];
+    msg.textContent = msgs[count % msgs.length];
+}
+
+function handleNade() {
+    count++;
+    update();
+    sound.currentTime = 0;
+    sound.play();
+    stone.style.transform = "scale(1.1)";
+    setTimeout(() => stone.style.transform = "scale(1)", 100);
+}
+
+stone.addEventListener("mousemove", handleNade);
+stone.addEventListener("touchmove", handleNade);
+</script>
 </body>
 </html>
